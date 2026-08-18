@@ -410,7 +410,7 @@ export default function Dashboard() {
             bottom: 0;
             width: 86vw;
             max-width: 340px;
-            z-index: 60;
+            z-index: 3000;
             transform: translateX(-100%);
             transition: transform .25s ease;
             box-shadow: 10px 0 30px rgba(2,12,40,.3);
@@ -438,7 +438,7 @@ export default function Dashboard() {
             position: fixed;
             inset: 0;
             background: rgba(2,12,40,.45);
-            z-index: 55;
+            z-index: 2900;
           }
         }
 

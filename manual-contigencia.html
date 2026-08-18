@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Manual de Contingencias — Despliegue y Producción</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    color: #1a1a1a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 50px 30px 100px;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 16px;
+    margin-bottom: 30px;
+  }
+  .header .doc-info {
+    text-align: right;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #444;
+    line-height: 1.5;
+  }
+  .tag {
+    display: inline-block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border: 1px solid #1a1a1a;
+    color: #1a1a1a;
+  }
+
+  h1 {
+    font-size: 24px;
+    margin: 0 0 4px;
+    text-align: center;
+  }
+  h1 + p.subtitle {
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px;
+    color: #555;
+    margin: 0 0 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .intro {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    color: #444;
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    padding: 16px 18px;
+    margin-bottom: 34px;
+  }
+  .intro p { margin: 0 0 8px; text-align: left; }
+  .intro p:last-child { margin-bottom: 0; }
+
+  /* Índice */
+  .toc {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px;
+    border: 1px solid #999;
+    padding: 18px 22px;
+    margin-bottom: 40px;
+  }
+  .toc-title {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  .toc ol { margin: 0; padding-left: 18px; columns: 2; column-gap: 24px; }
+  .toc li { margin-bottom: 6px; break-inside: avoid; }
+  .toc a { color: #1a1a1a; text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  h2 {
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: Arial, Helvetica, sans-serif;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 8px;
+    margin: 50px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2 i { font-size: 14px; color: #a1441c; }
+  h2:first-of-type { margin-top: 0; }
+
+  .case {
+    border: 1px solid #ccc;
+    margin-bottom: 22px;
+    page-break-inside: avoid;
+  }
+  .case-head {
+    background: #f2f2f2;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .case-head h3 {
+    margin: 0;
+    font-size: 14.5px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+  }
+  .severity {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 9.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 2px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+    flex: none;
+  }
+  .severity.critico { background: #f2e0e0; color: #a1141c; border: 1px solid #e0b0b0; }
+  .severity.alto { background: #f2e6e0; color: #a1441c; border: 1px solid #e0bfae; }
+  .severity.medio { background: #f2f0e6; color: #8a6d1c; border: 1px solid #ddd3b0; }
+
+  .case-body { padding: 16px 18px; }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  .field-label {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #777;
+    margin-bottom: 4px;
+  }
+  .field p { margin: 0; text-align: left; }
+
+  pre {
+    background: #1a1a1a;
+    color: #e8e8e8;
+    font-family: "Consolas", "Monaco", monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    padding: 12px 14px;
+    margin: 4px 0 0;
+    overflow-x: auto;
+    border-radius: 3px;
+  }
+  code {
+    font-family: "Consolas", "Monaco", monospace;
+    background: #eee;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 0.92em;
+  }
+  pre code { background: none; padding: 0; }
+
+  .prevent {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #1c7a37;
+    background: #e9f5ec;
+    border-left: 3px solid #1c7a37;
+    padding: 8px 12px;
+  }
+
+  .note {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #555;
+    border-left: 3px solid #1a1a1a;
+    padding-left: 12px;
+    margin: 14px 0;
+  }
+  .note.warn { border-left-color: #a1441c; }
+
+  .checklist {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    border: 1px solid #999;
+    padding: 18px 22px;
+  }
+  .checklist ol { margin: 0; padding-left: 20px; }
+  .checklist li { margin-bottom: 10px; }
+  .checklist code { display: inline-block; margin-top: 3px; }
+
+  .print-bar { position: fixed; top: 16px; right: 16px; }
+  .print-bar button {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  .print-bar button:hover { background: #333; }
+
+  footer {
+    margin-top: 50px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5px;
+    color: #777;
+  }
+
+  @page { size: letter; margin: 8mm 14mm 16mm; }
+  @media print {
+    .print-bar { display: none; }
+    body { max-width: 100%; padding: 0; font-size: 11px; line-height: 1.4; }
+    h1 { font-size: 18px; }
+    h2 { font-size: 12.5px; margin: 22px 0 10px; page-break-after: avoid; }
+    .case { page-break-inside: avoid; }
+    pre { font-size: 10px; }
+    .toc ol { columns: 1; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button onclick="window.print()">Imprimir / Guardar PDF</button>
+  </div>
+
+  <div class="header">
+    <span class="tag"><i class="fa-solid fa-life-ring"></i>&nbsp; Manual interno</span>
+    <div class="doc-info">
+      Producción y despliegue<br>
+      HSWARE Tecnología S.R.L.
+    </div>
+  </div>
+
+  <h1>Manual de Contingencias</h1>
+  <p class="subtitle">Errores comunes en despliegue de aplicaciones web y cómo resolverlos</p>
+
+  <div class="intro">
+    <p><strong>Cómo usar este manual:</strong> cada caso está armado como <strong>Síntoma → Causa → Solución</strong>. Buscá primero por lo que ves en pantalla (el error literal), no por lo que creés que está mal — la mayoría de estos errores tienen una causa distinta a la que parece a primera vista.</p>
+    <p>Está basado en incidentes reales resueltos durante despliegues propios, no es una lista genérica copiada de internet.</p>
+  </div>
+
+  <div class="toc">
+    <p class="toc-title">Índice</p>
+    <ol>
+      <li><a href="#env">Variables de entorno no coinciden entre archivos</a></li>
+      <li><a href="#dollar">Docker Compose rompe valores con signos <code>$</code></a></li>
+      <li><a href="#tsbuild">El build falla en producción pero funcionaba en desarrollo</a></li>
+      <li><a href="#puerto">Puerto ya ocupado / conflicto con otro proyecto</a></li>
+      <li><a href="#yaml">YAML mal indentado o con claves duplicadas</a></li>
+      <li><a href="#zsh">La terminal rompe comandos al pegarlos (zsh)</a></li>
+      <li><a href="#dominio">El dominio muestra la app equivocada</a></li>
+      <li><a href="#502">Error 502 Bad Gateway</a></li>
+      <li><a href="#crashloop">Un contenedor entra en crash-loop (Restarting)</a></li>
+      <li><a href="#dbauth">Falla el login pero el usuario "existe"</a></li>
+      <li><a href="#disco">El servidor se queda sin espacio en disco</a></li>
+      <li><a href="#secretos">Se subió una contraseña o archivo secreto a git</a></li>
+    </ol>
+  </div>
+
+  <h2 id="env"><i class="fa-solid fa-key"></i>1. Variables de entorno no coinciden entre archivos</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>password authentication failed for user "..."</h3>
+      <span class="severity critico">Crítico</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>El backend entra en <code>Restarting</code> en bucle. Los logs muestran <code>FATAL: password authentication failed</code> (código Postgres <code>28P01</code>).</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>Cuando el proyecto usa dos archivos <code>.env</code> distintos (uno para crear la base de datos, otro para que el backend se conecte a ella), Postgres solo lee la contraseña <strong>la primera vez</strong> que inicializa su volumen. Si después el otro archivo tiene un valor distinto — o quedó con el placeholder de la plantilla sin editar — el backend intenta entrar con una clave que no coincide.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Confirmar que las credenciales sean idénticas en ambos archivos:</p>
+        <pre><code>grep -E "PGUSER|PGPASSWORD|PGDATABASE" .env
+grep -E "PGUSER|PGPASSWORD|PGDATABASE" backend/.env.production</code></pre>
+        <p>Si no coinciden, corregir uno de los dos. Si el volumen de la base ya se creó con la clave vieja, hay que resetear (solo seguro si no hay datos reales todavía):</p>
+        <pre><code>docker compose -f docker-compose.prod.yml down -v
+docker compose -f docker-compose.prod.yml up -d --build</code></pre>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: editar la clave en un solo lugar y copiarla al otro archivo, nunca escribirla dos veces a mano.</p>
+    </div>
+  </div>
+
+  <h2 id="dollar"><i class="fa-solid fa-dollar-sign"></i>2. Docker Compose rompe valores con signos <code>$</code></h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>The "XXXXX" variable is not set. Defaulting to a blank string.</h3>
+      <span class="severity alto">Alto</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>Al levantar los contenedores aparecen warnings de variables "no definidas" cuyo nombre es un fragmento de una contraseña o hash (por ejemplo un hash de API o un bcrypt). La app funciona pero con ese dato vacío/roto (ej. login externo devuelve 401).</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>Docker Compose interpreta cualquier <code>$algo</code> dentro de un archivo <code>.env</code> como una variable a sustituir. Si el valor real contiene signos <code>$</code> literales (hashes tipo bcrypt <code>$2y$10$...</code>, algunas claves generadas), Compose intenta reemplazarlos por una variable de entorno que no existe — y los deja en blanco.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Escapar cada <code>$</code> literal como <code>$$</code> dentro del archivo <code>.env</code>:</p>
+        <pre><code># Antes (se rompe):
+TRACKING_API_URLS=...user_api_hash=$2y$10$GvpiFgLM...
+
+# Después (correcto):
+TRACKING_API_URLS=...user_api_hash=$$2y$$10$$GvpiFgLM...</code></pre>
+        <p>Reconstruir el servicio afectado después de corregir:</p>
+        <pre><code>docker compose -f docker-compose.prod.yml up -d --build backend</code></pre>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: cualquier valor que use <code>env_file:</code> en Compose y tenga signos <code>$</code> (hashes, algunas claves) necesita <code>$$</code> desde el primer momento en que se escribe el archivo.</p>
+    </div>
+  </div>
+
+  <h2 id="tsbuild"><i class="fa-solid fa-hammer"></i>3. El build falla en producción pero funcionaba en desarrollo</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>Cannot find namespace 'JSX' / must be imported using a type-only import</h3>
+      <span class="severity alto">Alto</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>El proyecto corre perfecto en desarrollo (<code>npm run dev</code>), pero <code>docker build</code> falla al ejecutar <code>npm run build</code> con errores de TypeScript que nunca se vieron antes.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>Cuando el proyecto usa "project references" en <code>tsconfig.json</code> (patrón típico de plantillas modernas de Vite), un chequeo rápido con <code>tsc --noEmit</code> sin la bandera <code>-b</code> no revisa nada en absoluto — da una falsa sensación de que todo compila. El comando real de build (<code>tsc -b</code>) sí aplica reglas más estrictas (como <code>verbatimModuleSyntax</code>) que nunca se probaron hasta ese momento.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Separar los imports de tipos de los de valores:</p>
+        <pre><code>// Antes:
+import { FormEvent, useState } from "react";
+
+// Después:
+import { useState } from "react";
+import type { FormEvent } from "react";</code></pre>
+        <p>Y reemplazar usos de <code>JSX.Element</code> por <code>ReactElement</code> (importado como tipo desde <code>"react"</code>).</p>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: para chequear de verdad un proyecto con project references, usar <code>npx tsc -b</code> (no <code>--noEmit</code> a secas), o directamente correr <code>npm run build</code> localmente antes de cada despliegue.</p>
+    </div>
+  </div>
+
+  <h2 id="puerto"><i class="fa-solid fa-plug"></i>4. Puerto ya ocupado / conflicto con otro proyecto</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>Bind for 0.0.0.0:XXXX failed: port is already allocated</h3>
+      <span class="severity medio">Medio</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>Un servidor con varios proyectos Docker corriendo a la vez no deja levantar un contenedor nuevo porque el puerto elegido ya lo usa otro proyecto.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>Elegir puertos "a mano" sin revisar antes qué hay ocupado, en un servidor que hostea múltiples clientes/proyectos.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Revisar qué está ocupado antes de asignar uno nuevo:</p>
+        <pre><code>docker ps --format "table {{.Names}}\t{{.Ports}}"</code></pre>
+        <p>Preferir <strong>no publicar puertos al host en absoluto</strong> cuando se puede enrutar por dominio (Traefik/Dokploy) o por un proxy interno — evita este problema de raíz.</p>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: si el servidor ya tiene un reverse proxy central (Dokploy, Traefik, nginx), usarlo para todo lo nuevo en vez de publicar puertos manualmente proyecto por proyecto.</p>
+    </div>
+  </div>
+
+  <h2 id="yaml"><i class="fa-solid fa-file-code"></i>5. YAML mal indentado o con claves duplicadas</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>yaml: construct errors: mapping key "X" already defined</h3>
+      <span class="severity medio">Medio</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>Editar un <code>docker-compose.yml</code> manualmente (con <code>nano</code> o similar) y que el archivo quede con una sección repetida o mal alineada, rompiendo el parseo.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>Ediciones manuales sucesivas sobre el mismo archivo, sin verificar el resultado final después de cada cambio — un mismo bloque termina pegado dos veces.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Reescribir el archivo completo de una sola vez con un heredoc en vez de editarlo a parches:</p>
+        <pre><code>cat > docker-compose.prod.yml << 'EOF'
+services:
+  ...
+EOF</code></pre>
+        <p>Siempre verificar el resultado antes de usarlo:</p>
+        <pre><code>cat -n docker-compose.prod.yml</code></pre>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: después de cualquier edición manual de un YAML, releerlo completo antes de ejecutar el siguiente comando — no asumir que la edición se aplicó como se pidió.</p>
+    </div>
+  </div>
+
+  <h2 id="zsh"><i class="fa-solid fa-terminal"></i>6. La terminal rompe comandos al pegarlos (zsh)</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>invalid number of arguments in "proxy_pass" directive</h3>
+      <span class="severity medio">Medio</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>Un archivo de configuración (nginx, por ejemplo) queda con caracteres agregados solos, típicamente una barra invertida antes de un punto y coma (<code>\;</code>), aunque el comando que se pegó no la tenía.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>Zsh (con Oh My Zsh u otras configuraciones) trae una función de seguridad (<code>url-quote-magic</code>) que escapa automáticamente caracteres especiales cuando detecta que se está pegando algo con forma de URL. Esto ocurre al nivel del editor de línea de la terminal, antes de que el comando llegue a ejecutarse — así que hasta un <code>heredoc</code> bien escrito puede salir mal si se pega directo en una sesión zsh interactiva.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Arreglar la línea afectada con <code>sed</code> en vez de volver a pegar la URL (evita disparar la misma magia de nuevo):</p>
+        <pre><code>sed -i 's/8092\\;/8092;/' /etc/nginx/sites-enabled/mi-sitio</code></pre>
+        <p>Verificar siempre con <code>cat -n</code> el archivo después de cualquier pegado que incluya una URL seguida de <code>;</code>.</p>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: para pegar bloques de configuración largos con URLs, usar un editor de archivos (<code>nano</code>, <code>vim</code>) en vez de un heredoc pegado directo en la terminal, o revisar el archivo resultante siempre.</p>
+    </div>
+  </div>
+
+  <h2 id="dominio"><i class="fa-solid fa-globe"></i>7. El dominio muestra la app equivocada</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>El sitio carga, pero es el contenido de otro proyecto</h3>
+      <span class="severity alto">Alto</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>El dominio resuelve y responde <code>200 OK</code>, pero el HTML que devuelve pertenece a otra aplicación distinta a la que se acaba de desplegar.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>En un servidor con varios proyectos, el dominio quedó asignado (en Dokploy/Traefik, o en un nginx externo) a una app anterior, y nunca se reasignó al proyecto nuevo.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Revisar en el panel del reverse proxy (Dokploy) qué app tiene asignado ese dominio, y cambiarlo al servicio correcto. Si es nginx externo manual, revisar:</p>
+        <pre><code>ls /etc/nginx/sites-enabled/
+grep -rl "mi-dominio.com" /etc/nginx/sites-enabled/</code></pre>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: antes de asignar un dominio nuevo, buscar si ya está en uso en otro lado del servidor.</p>
+    </div>
+  </div>
+
+  <h2 id="502"><i class="fa-solid fa-triangle-exclamation"></i>8. Error 502 Bad Gateway</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>Cloudflare (o el navegador) muestra 502</h3>
+      <span class="severity alto">Alto</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>El dominio carga pero devuelve 502 en vez del sitio.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa más común</p>
+        <p>El proxy (nginx/Cloudflare) intenta conectarse a un puerto donde no hay nada escuchando — típicamente porque el contenedor del frontend no publicó el puerto al host que el nginx externo espera.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Verificar localmente primero, sin pasar por el dominio:</p>
+        <pre><code>curl -I http://127.0.0.1:PUERTO</code></pre>
+        <p>Si eso falla, revisar que el contenedor publique el puerto:</p>
+        <pre><code>docker ps | grep nombre-del-contenedor
+# la columna PORTS debe mostrar 127.0.0.1:PUERTO->80/tcp</code></pre>
+        <p>Si se usa Cloudflare, revisar también el modo SSL/TLS: en modo <strong>Full</strong> o <strong>Full (strict)</strong>, Cloudflare exige HTTPS en el servidor de origen — si el origin solo tiene HTTP, cambiar el modo a <strong>Flexible</strong>.</p>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: siempre probar con <code>curl</code> directo al puerto local antes de probar por el dominio — aísla si el problema es la app o el proxy.</p>
+    </div>
+  </div>
+
+  <h2 id="crashloop"><i class="fa-solid fa-rotate"></i>9. Un contenedor entra en crash-loop (Restarting)</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>docker ps muestra "Restarting (1) X seconds ago" en bucle</h3>
+      <span class="severity critico">Crítico</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>Un contenedor nunca queda en estado "Up" estable, se reinicia constantemente.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>El proceso principal del contenedor termina con error al arrancar — casi siempre por configuración (variables de entorno, conexión a base de datos), no por el código en sí.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Nunca adivinar — siempre leer el log primero, es lo único que da la causa real:</p>
+        <pre><code>docker logs nombre-del-contenedor --tail 50</code></pre>
+        <p>El mensaje de error casi siempre apunta directo al problema (ver casos 1, 2 y 10 de este manual, los más comunes).</p>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: nunca reintentar un <code>up -d --build</code> a ciegas esperando que "esta vez funcione" — leer el log entre cada intento.</p>
+    </div>
+  </div>
+
+  <h2 id="dbauth"><i class="fa-solid fa-user-lock"></i>10. Falla el login pero el usuario "existe"</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>"Usuario o contraseña incorrectos" con las credenciales correctas</h3>
+      <span class="severity medio">Medio</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>Las credenciales configuradas en el <code>.env</code> actual son correctas, pero el login sigue fallando.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>Cuando la app crea un usuario inicial automáticamente al arrancar, eso pasa <strong>una sola vez</strong> (la primera vez que la base está vacía). Si hubo varios intentos de despliegue con distintas contraseñas antes de la definitiva, el usuario quedó grabado con una clave vieja que ya no coincide con el <code>.env</code> actual.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Confirmar si el usuario ya existe en la base:</p>
+        <pre><code>docker exec -it nombre-db psql -U usuario -d basededatos \
+  -c "SELECT id, username, created_at FROM users;"</code></pre>
+        <p>Si existe pero con datos viejos, borrarlo y dejar que la app lo recree con la configuración actual:</p>
+        <pre><code>docker exec -it nombre-db psql -U usuario -d basededatos \
+  -c "DELETE FROM users WHERE username='admin';"
+docker compose restart backend</code></pre>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: definir la contraseña definitiva <strong>antes</strong> del primer arranque en limpio, para no tener que corregir esto después.</p>
+    </div>
+  </div>
+
+  <h2 id="disco"><i class="fa-solid fa-hard-drive"></i>11. El servidor se queda sin espacio en disco</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>La app deja de guardar datos sin ningún error visible al usuario</h3>
+      <span class="severity critico">Crítico</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>La aplicación "se cuelga" de a poco: dejan de guardarse registros nuevos, el login puede empezar a fallar, sin ningún mensaje claro en la interfaz.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>El disco del servidor se llenó — cuando eso pasa, la base de datos deja de aceptar escrituras nuevas por completo, y suele afectar a toda la aplicación, no solo a la función que genera más datos.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Revisar el espacio disponible regularmente, no solo cuando ya hay síntomas:</p>
+        <pre><code>df -h</code></pre>
+        <p>Si un servicio de base de datos crece rápido con historial (posiciones, logs, eventos), diseñar desde el inicio una política de qué se guarda y cuánto tiempo — no guardar todo indefinidamente "por si acaso".</p>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: calcular el crecimiento esperado de la base de datos <strong>antes</strong> de elegir el tamaño del disco, y monitorear el espacio libre periódicamente, no solo al desplegar.</p>
+    </div>
+  </div>
+
+  <h2 id="secretos"><i class="fa-solid fa-shield-halved"></i>12. Se subió una contraseña o archivo secreto a git</h2>
+  <div class="case">
+    <div class="case-head">
+      <h3>Un archivo con claves reales quedó en el historial del repositorio</h3>
+      <span class="severity critico">Crítico</span>
+    </div>
+    <div class="case-body">
+      <div class="field">
+        <p class="field-label">Síntoma</p>
+        <p>Un <code>.env</code>, una contraseña o un archivo de notas con credenciales aparece en <code>git status</code> como listo para subir, o ya se subió.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Causa</p>
+        <p>El <code>.gitignore</code> no se configuró antes del primer <code>git add</code>, o se agregó un archivo nuevo con secretos sin revisar qué se estaba subiendo.</p>
+      </div>
+      <div class="field">
+        <p class="field-label">Solución</p>
+        <p>Si todavía no se hizo <code>commit</code>: sacarlo del staging y agregarlo al <code>.gitignore</code>.</p>
+        <pre><code>git restore --staged archivo-secreto.env
+echo "archivo-secreto.env" >> .gitignore</code></pre>
+        <p>Si <strong>ya se subió</strong> (aunque sea en un commit viejo): la clave debe considerarse comprometida — no alcanza con borrarla del código, hay que <strong>cambiarla</strong> (nueva contraseña, nuevo token/hash) y recién después limpiar el historial si el repo es público.</p>
+      </div>
+      <p class="prevent"><i class="fa-solid fa-shield"></i>&nbsp; Prevención: crear el <code>.gitignore</code> como el primer archivo del proyecto, antes del primer <code>git add</code> — y revisar siempre <code>git status</code> antes de cada commit.</p>
+    </div>
+  </div>
+
+  <h2><i class="fa-solid fa-list-check"></i>Checklist de diagnóstico rápido</h2>
+  <div class="checklist">
+    <ol>
+      <li>¿Todos los contenedores están "Up" y no en "Restarting"?
+        <br><code>docker ps</code>
+      </li>
+      <li>¿Qué dice el log del contenedor que falla?
+        <br><code>docker logs nombre-del-contenedor --tail 50</code>
+      </li>
+      <li>¿El servicio responde localmente, sin pasar por dominio ni proxy?
+        <br><code>curl -I http://127.0.0.1:PUERTO</code>
+      </li>
+      <li>¿Las variables de entorno de los distintos archivos coinciden entre sí?
+        <br><code>grep -E "PGUSER|PGPASSWORD" .env backend/.env.production</code>
+      </li>
+      <li>¿Hay espacio en disco?
+        <br><code>df -h</code>
+      </li>
+      <li>¿El archivo de configuración que se editó a mano quedó como se esperaba?
+        <br><code>cat -n archivo</code>
+      </li>
+    </ol>
+  </div>
+
+  <footer>
+    HSWARE Tecnología S.R.L. — Manual de uso interno, actualizar con cada incidente nuevo resuelto.
+  </footer>
+
+</body>
+</html>

@@ -6,14 +6,6 @@ import { useAuth } from "../context/AuthContext";
 
 const COLLAPSE_KEY = "delosur_sidebar_collapsed";
 
-function MenuIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function MapIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
@@ -92,7 +84,6 @@ const NAV_ITEMS: NavItem[] = [
 export default function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSE_KEY) === "1");
 
   useEffect(() => {
@@ -100,34 +91,24 @@ export default function Layout({ children }: { children: ReactNode }) {
   }, [collapsed]);
 
   const navItems = NAV_ITEMS.filter((item) => !item.adminOnly || user?.role === "admin");
-  // En el drawer mobile (open) siempre se ve expandido, sin importar la
-  // preferencia de colapso guardada para desktop.
-  const effectiveCollapsed = collapsed && !open;
 
   const activeItem = navItems.find((item) =>
     item.to === "/" ? location.pathname === "/" : location.pathname.startsWith(item.to)
   );
-  const subItems = effectiveCollapsed ? undefined : activeItem?.children;
+  const subItems = collapsed ? undefined : activeItem?.children;
 
   return (
     <div className="app-layout">
       <header className="mobile-topbar">
-        <button className="mobile-menu-btn" onClick={() => setOpen(true)} aria-label="Abrir menú">
-          <MenuIcon />
-        </button>
         <img src={user?.logoPath || defaultLogo} alt="Logo" className="mobile-logo" />
+        <button className="mobile-logout-btn" onClick={logout} aria-label="Cerrar sesión">
+          <LogoutIcon />
+        </button>
       </header>
 
-      {open && <div className="nav-overlay" onClick={() => setOpen(false)} />}
-
-      <aside className={open ? "app-sidebar open" : effectiveCollapsed ? "app-sidebar collapsed" : "app-sidebar"}>
+      <aside className={collapsed ? "app-sidebar collapsed" : "app-sidebar"}>
         <div className="sidebar-top">
-          {!effectiveCollapsed && (
-            <img src={user?.logoPath || defaultLogo} alt="Logo" className="sidebar-logo" />
-          )}
-          <button className="sidebar-close" onClick={() => setOpen(false)} aria-label="Cerrar menú">
-            ✕
-          </button>
+          {!collapsed && <img src={user?.logoPath || defaultLogo} alt="Logo" className="sidebar-logo" />}
         </div>
 
         <nav className="sidebar-nav">
@@ -137,11 +118,10 @@ export default function Layout({ children }: { children: ReactNode }) {
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) => (isActive ? "nav-item active" : "nav-item")}
-              onClick={() => setOpen(false)}
-              title={effectiveCollapsed ? item.label : undefined}
+              title={collapsed ? item.label : undefined}
             >
               {item.icon}
-              {!effectiveCollapsed && <span>{item.label}</span>}
+              {!collapsed && <span>{item.label}</span>}
             </NavLink>
           ))}
         </nav>
@@ -152,27 +132,23 @@ export default function Layout({ children }: { children: ReactNode }) {
           aria-label={collapsed ? "Expandir menú" : "Ocultar menú"}
           title={collapsed ? "Expandir menú" : "Ocultar menú"}
         >
-          <CollapseIcon collapsed={effectiveCollapsed} />
-          {!effectiveCollapsed && <span>Ocultar menú</span>}
+          <CollapseIcon collapsed={collapsed} />
+          {!collapsed && <span>Ocultar menú</span>}
         </button>
 
         <div className="sidebar-bottom">
           <div className="sidebar-user">
             <span className="sidebar-avatar">{user?.username.slice(0, 2).toUpperCase()}</span>
-            {!effectiveCollapsed && (
+            {!collapsed && (
               <div className="sidebar-user-text">
                 <p className="sidebar-username">{user?.username}</p>
                 <p className="sidebar-role">{user?.role === "admin" ? "Administrador" : "Usuario"}</p>
               </div>
             )}
           </div>
-          <button
-            className="sidebar-logout"
-            onClick={logout}
-            title={effectiveCollapsed ? "Cerrar sesión" : undefined}
-          >
+          <button className="sidebar-logout" onClick={logout} title={collapsed ? "Cerrar sesión" : undefined}>
             <LogoutIcon />
-            {!effectiveCollapsed && "Cerrar sesión"}
+            {!collapsed && "Cerrar sesión"}
           </button>
         </div>
       </aside>
@@ -197,6 +173,22 @@ export default function Layout({ children }: { children: ReactNode }) {
 
       <main className="app-content">{children}</main>
 
+      {navItems.length > 1 && (
+        <nav className="bottom-tab-bar">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === "/"}
+              className={({ isActive }) => (isActive ? "tab-item active" : "tab-item")}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      )}
+
       <style>{`
         .app-layout {
           display: flex;
@@ -207,18 +199,20 @@ export default function Layout({ children }: { children: ReactNode }) {
         .mobile-topbar {
           display: none;
           align-items: center;
+          justify-content: space-between;
           gap: 12px;
           height: 48px;
-          padding: 0 12px;
+          padding: 0 14px;
           background: var(--surface);
           border-bottom: 1px solid var(--line);
           position: fixed;
           top: 0;
           left: 0;
           right: 0;
-          z-index: 45;
+          z-index: 2000;
         }
-        .mobile-menu-btn {
+        .mobile-logo { height: 22px; }
+        .mobile-logout-btn {
           width: 32px;
           height: 32px;
           display: flex;
@@ -230,11 +224,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           color: var(--ink-soft);
           cursor: pointer;
         }
-        .mobile-logo { height: 22px; }
-
-        .nav-overlay {
-          display: none;
-        }
+        .mobile-logout-btn:hover { color: var(--danger); border-color: var(--danger); }
 
         .app-sidebar {
           width: 216px;
@@ -254,14 +244,12 @@ export default function Layout({ children }: { children: ReactNode }) {
         .sidebar-top {
           display: flex;
           align-items: center;
-          justify-content: space-between;
           margin-bottom: 24px;
           padding: 0 4px;
           width: 100%;
+          min-height: 30px;
         }
-        .app-sidebar.collapsed .sidebar-top { justify-content: center; margin-bottom: 18px; }
         .sidebar-logo { height: 30px; max-width: 160px; object-fit: contain; }
-        .sidebar-close { display: none; }
 
         .sidebar-nav {
           display: flex;
@@ -390,10 +378,15 @@ export default function Layout({ children }: { children: ReactNode }) {
           overflow-y: auto;
         }
 
+        .bottom-tab-bar {
+          display: none;
+        }
+
         @media (max-width: 860px) {
           .mobile-topbar { display: flex; }
+          .app-sidebar { display: none; }
           .app-layout { padding-top: 48px; flex-wrap: wrap; }
-          .app-content { height: calc(100vh - 48px); }
+          .app-content { height: calc(100vh - 48px - 58px); }
 
           .sub-sidebar {
             width: 100%;
@@ -404,41 +397,31 @@ export default function Layout({ children }: { children: ReactNode }) {
           .sub-sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 6px; }
           .sub-sidebar-title { display: none; }
 
-          .app-sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 78vw;
-            max-width: 300px;
-            padding: 18px 14px;
-            align-items: stretch;
-            z-index: 70;
-            transform: translateX(-100%);
-            transition: transform .25s ease;
-            box-shadow: 10px 0 30px rgba(2,12,40,.3);
-          }
-          .app-sidebar.open { transform: translateX(0); }
-          .collapse-toggle { display: none; }
-          .sidebar-close {
+          .bottom-tab-bar {
             display: flex;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 58px;
+            background: var(--surface);
+            border-top: 1px solid var(--line);
+            z-index: 2000;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+          }
+          .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            background: var(--surface-2);
-            border: 1px solid var(--line);
-            border-radius: 6px;
-            color: var(--ink-soft);
-            cursor: pointer;
+            gap: 3px;
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 10.5px;
+            font-weight: 600;
           }
-          .nav-overlay {
-            display: block;
-            position: fixed;
-            inset: 0;
-            background: rgba(2,12,40,.45);
-            z-index: 65;
-          }
+          .tab-item.active { color: var(--navy); }
         }
       `}</style>
     </div>

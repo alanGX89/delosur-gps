@@ -126,7 +126,7 @@ export default function HistoryPanel({
             position: fixed;
             inset: 0;
             width: 100%;
-            z-index: 65;
+            z-index: 3100;
             border-left: none;
             padding: 16px;
             animation: history-slide-up .2s ease-out;
