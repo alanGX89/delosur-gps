@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import type { ReactElement } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { useAuth } from "./context/AuthContext";
@@ -7,13 +8,13 @@ import AdminUsers from "./pages/AdminUsers";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
+function PrivateRoute({ children }: { children: ReactElement }) {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return <Layout>{children}</Layout>;
 }
 
-function AdminRoute({ children }: { children: JSX.Element }) {
+function AdminRoute({ children }: { children: ReactElement }) {
   const { isAuthenticated, user } = useAuth();
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (user?.role !== "admin") return <Navigate to="/" replace />;

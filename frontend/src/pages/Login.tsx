@@ -1,4 +1,5 @@
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/LOGO_DELOSUR.png";
 import backgroundImg from "../assets/foto_fondo.jfif";

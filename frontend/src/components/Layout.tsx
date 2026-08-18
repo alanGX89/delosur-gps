@@ -1,4 +1,5 @@
-import { ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import defaultLogo from "../assets/LOGO_DELOSUR.png";
 import { useAuth } from "../context/AuthContext";
@@ -69,7 +70,7 @@ function CollapseIcon({ collapsed }: { collapsed: boolean }) {
 interface NavItem {
   to: string;
   label: string;
-  icon: JSX.Element;
+  icon: ReactElement;
   adminOnly: boolean;
   children?: { to: string; label: string }[];
 }
