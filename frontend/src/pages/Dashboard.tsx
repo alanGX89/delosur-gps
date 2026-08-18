@@ -369,7 +369,7 @@ export default function Dashboard() {
           cursor: pointer;
         }
         .vehicle-item:hover { background: var(--surface-2); }
-        .vehicle-item.selected { background: var(--sky); }
+        .vehicle-item.selected { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--navy); }
         .history-toggle {
           margin-left: auto;
           background: var(--navy);

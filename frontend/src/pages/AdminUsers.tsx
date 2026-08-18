@@ -1101,7 +1101,7 @@ export default function AdminUsers() {
           cursor: pointer;
           white-space: nowrap;
         }
-        .password-toggle:hover { background: var(--sky); }
+        .password-toggle:hover { background: var(--surface-2); }
 
         .role-picker {
           display: grid;
@@ -1120,9 +1120,9 @@ export default function AdminUsers() {
           gap: 4px;
         }
         .role-card:hover { border-color: var(--blue); }
-        .role-card.active { border-color: var(--navy); background: var(--sky); }
+        .role-card.active { border-color: var(--navy); background: var(--surface-2); box-shadow: inset 3px 0 0 var(--navy); }
         .role-title { font-size: 13px; font-weight: 700; color: var(--ink); }
-        .role-desc { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+        .role-desc { font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; }
 
         .schedule-fields { display: flex; flex-direction: column; gap: 12px; }
 
@@ -1240,7 +1240,7 @@ export default function AdminUsers() {
           color: var(--ink-soft);
           cursor: pointer;
         }
-        .fleet-actions button:hover { background: var(--sky); }
+        .fleet-actions button:hover { background: var(--surface-2); }
 
         .fleet-grid {
           display: grid;
@@ -1266,7 +1266,7 @@ export default function AdminUsers() {
         }
         .fleet-card input { position: absolute; opacity: 0; pointer-events: none; }
         .fleet-card:hover { border-color: var(--blue); background: var(--surface-2); }
-        .fleet-card.checked { border-color: var(--navy); background: var(--sky); }
+        .fleet-card.checked { border-color: var(--navy); background: var(--surface-2); }
         .fleet-card-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
         .fleet-card-name { flex: 1; line-height: 1.3; }
         .fleet-card-check {

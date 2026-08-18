@@ -84,7 +84,12 @@ const NAV_ITEMS: NavItem[] = [
 export default function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const [collapsed, setCollapsed] = useState(() => localStorage.getItem(COLLAPSE_KEY) === "1");
+  // Colapsado (modo ícono) por defecto: con el mapa ya trae su propia lista
+  // de vehículos al lado, dos sidebars completos se sienten pesados. El
+  // usuario puede expandirlo cuando quiera; la elección se recuerda.
+  const [collapsed, setCollapsed] = useState(
+    () => (localStorage.getItem(COLLAPSE_KEY) ?? "1") === "1"
+  );
 
   useEffect(() => {
     localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0");
@@ -272,7 +277,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         }
         .app-sidebar.collapsed .nav-item { justify-content: center; padding: 10px; }
         .nav-item:hover { background: var(--surface-2); color: var(--ink); }
-        .nav-item.active { background: var(--sky); color: var(--navy); }
+        .nav-item.active { background: var(--surface-2); color: var(--navy); box-shadow: inset 3px 0 0 var(--navy); }
 
         .collapse-toggle {
           display: flex;
@@ -385,7 +390,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         @media (max-width: 860px) {
           .mobile-topbar { display: flex; }
           .app-sidebar { display: none; }
-          .app-layout { padding-top: 48px; flex-wrap: wrap; }
+          .app-layout { padding-top: 48px; flex-direction: column; }
           .app-content { height: calc(100vh - 48px - 58px); }
 
           .sub-sidebar {

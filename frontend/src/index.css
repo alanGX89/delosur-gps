@@ -78,6 +78,19 @@ input {
   font-family: inherit;
 }
 
+/* Foco de teclado visible en toda la app (Tab/Shift+Tab). Solo aparece
+   para navegación por teclado, no al hacer click con el mouse. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Desliza los vehículos entre posiciones en vez de teletransportarlos
    en cada actualización de la API (Leaflet mueve los marcadores vía
    transform, así que basta con darle transición a esa propiedad). */
