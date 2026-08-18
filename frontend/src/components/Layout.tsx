@@ -277,7 +277,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         }
         .app-sidebar.collapsed .nav-item { justify-content: center; padding: 10px; }
         .nav-item:hover { background: var(--surface-2); color: var(--ink); }
-        .nav-item.active { background: var(--surface-2); color: var(--navy); box-shadow: inset 3px 0 0 var(--navy); }
+        .nav-item.active { background: var(--sky); color: var(--navy); font-weight: 700; box-shadow: inset 3px 0 0 var(--navy); }
 
         .collapse-toggle {
           display: flex;
