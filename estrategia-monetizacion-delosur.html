@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Estrategia de Monetización — DELOSUR</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #ffffff;
+    color: #1a1a1a;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 50px 30px 100px;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 16px;
+    margin-bottom: 30px;
+  }
+  .header .doc-info {
+    text-align: right;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    color: #444;
+    line-height: 1.5;
+  }
+  .confidential {
+    display: inline-block;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border: 1px solid #a1441c;
+    color: #a1441c;
+  }
+
+  h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+    text-align: center;
+  }
+  h1 + p.subtitle {
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12.5px;
+    color: #555;
+    margin: 0 0 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-family: Arial, Helvetica, sans-serif;
+    border-bottom: 1px solid #1a1a1a;
+    padding-bottom: 6px;
+    margin: 34px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  h2 i { font-size: 13px; color: #555; }
+
+  p { margin: 0 0 10px; text-align: justify; }
+
+  ul.plain { margin: 0 0 10px; padding-left: 20px; }
+  ul.plain li { margin-bottom: 6px; }
+
+  .box {
+    border: 1px solid #999;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-top: 6px;
+  }
+  th, td {
+    border: 1px solid #999;
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: #f2f2f2;
+  }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tfoot td { font-weight: bold; background: #f7f7f7; }
+
+  .note {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #555;
+    border-left: 3px solid #1a1a1a;
+    padding-left: 12px;
+    margin-top: 14px;
+  }
+  .note.warn { border-left-color: #a1441c; }
+
+  .trigger {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11.5px;
+    color: #1c7a37;
+    margin-top: 4px;
+  }
+
+  .print-bar { position: fixed; top: 16px; right: 16px; }
+  .print-bar button {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
+  .print-bar button:hover { background: #333; }
+
+  footer {
+    margin-top: 40px;
+    border-top: 1px solid #ccc;
+    padding-top: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5px;
+    color: #777;
+  }
+
+  @page { size: letter; margin: 8mm 14mm 16mm; }
+
+  @media print {
+    .print-bar { display: none; }
+    body { max-width: 100%; padding: 0; font-size: 11.5px; line-height: 1.45; }
+    h1 { font-size: 18px; margin-bottom: 3px; }
+    .subtitle { margin-bottom: 16px !important; }
+    h2 { font-size: 12px; margin: 14px 0 8px; padding-bottom: 4px; page-break-after: avoid; break-after: avoid; }
+    h2:first-of-type { margin-top: 0; }
+    p { margin-bottom: 7px; orphans: 3; widows: 3; }
+    .header { page-break-after: avoid; margin-bottom: 18px; }
+    .box, table, footer { page-break-inside: avoid; break-inside: avoid; }
+    ul.plain { page-break-inside: avoid; break-inside: avoid; }
+    ul.plain li { page-break-inside: avoid; break-inside: avoid; }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button onclick="window.print()">Imprimir / Guardar PDF</button>
+  </div>
+
+  <div class="header">
+    <span class="confidential"><i class="fa-solid fa-lock"></i>&nbsp; Confidencial — uso interno</span>
+    <div class="doc-info">
+      No compartir con el cliente<br>
+      HSWARE Tecnología S.R.L.
+    </div>
+  </div>
+
+  <h1>Estrategia de Monetización por Etapas</h1>
+  <p class="subtitle">Sistema de Tracking GPS DELOSUR — módulos retenidos para venta futura</p>
+
+  <h2><i class="fa-solid fa-circle-info"></i>1. Principio general</h2>
+  <p>Los módulos listados en este documento quedaron deliberadamente fuera de la propuesta comercial entregada a DELOSUR. La estrategia es no ofrecerlos por adelantado: esperar a que el cliente pida la funcionalidad ("¿se puede dar acceso a un chofer?", "¿puedo ver quién entró?") y responder que sí es posible, como una ampliación cotizada aparte.</p>
+  <div class="note warn">
+    <i class="fa-solid fa-triangle-exclamation"></i>&nbsp; No demostrar estos módulos en la entrega inicial ni dejarlos visibles/activables en la interfaz del cliente hasta que estén pagados.
+  </div>
+
+  <h2><i class="fa-solid fa-cubes"></i>2. Módulos retenidos y precio sugerido</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Módulo</th>
+        <th>Cubre</th>
+        <th class="num">Precio sugerido</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Gestión de usuarios múltiples</td>
+        <td>
+          Accesos independientes por chofer, cliente o sucursal, cada uno viendo solo la flota asignada.
+          <div class="trigger">Disparador: "¿mi chofer puede tener su propio acceso?"</div>
+        </td>
+        <td class="num">Bs 1.500</td>
+      </tr>
+      <tr>
+        <td>Marca blanca por usuario</td>
+        <td>
+          Logo personalizado por cuenta, para revender el sistema a sub-clientes con su propia identidad visual.
+          <div class="trigger">Disparador: "¿podemos ponerle el logo de nuestro cliente?"</div>
+        </td>
+        <td class="num">Bs 800</td>
+      </tr>
+      <tr>
+        <td>Accesos programados y suspensión</td>
+        <td>
+          Usuarios con fecha de inicio/fin automática y opción de suspender/reactivar accesos sin borrarlos.
+          <div class="trigger">Disparador: "este chofer solo trabaja hasta fin de mes"</div>
+        </td>
+        <td class="num">Bs 600</td>
+      </tr>
+      <tr>
+        <td>Auditoría y actividad</td>
+        <td>
+          Bitácora de quién creó, editó, bloqueó o suspendió a cada usuario, con fecha y responsable.
+          <div class="trigger">Disparador: "¿quién le cambió el acceso a fulano?"</div>
+        </td>
+        <td class="num">Bs 600</td>
+      </tr>
+      <tr>
+        <td>Reportes e historial extendido</td>
+        <td>
+          Exportación de recorridos a PDF/Excel y reportes de kilometraje o tiempo en movimiento por vehículo.
+          <div class="trigger">Disparador: "necesito el reporte para contabilidad/gerencia"</div>
+        </td>
+        <td class="num">Bs 900</td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr><td colspan="2">Combo "Plan Administración Avanzada" (los primeros 4 módulos)</td><td class="num">Bs 3.200</td></tr>
+    </tfoot>
+  </table>
+  <div class="note"><i class="fa-solid fa-circle-question"></i>&nbsp; El combo representa un descuento frente a vender los 4 módulos por separado (Bs 4.400). Ofrecerlo quien pida un segundo módulo suelto, antes de cotizar el tercero de forma individual.</div>
+
+  <h2><i class="fa-solid fa-list-check"></i>3. Cómo y cuándo ofrecer</h2>
+  <ul class="plain">
+    <li><strong>Dejar que lo pidan</strong> — no mencionar estos módulos en la entrega inicial; el valor se percibe mejor cuando el cliente identifica la necesidad por su cuenta.</li>
+    <li><strong>Responder "sí, se puede"</strong> — nunca "no está incluido" en seco, siempre "sí, es un módulo que ya tenemos listo para habilitar, te paso el costo".</li>
+    <li><strong>Cotizar rápido</strong> — como el módulo ya existe, se puede responder con precio y plazo en el momento, lo que genera confianza y cierra más rápido.</li>
+    <li><strong>Empujar el combo</strong> — si piden un segundo módulo suelto, ofrecer el "Plan Administración Avanzada" antes de cotizar el tercero por separado.</li>
+  </ul>
+
+  <footer>
+    Documento de uso interno — HSWARE Tecnología S.R.L. — No incluir en propuestas al cliente
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,1 @@
+https://airpatrolsrl.com/api/get_devices?lang=en&user_api_hash=$2y$10$GvpiFgLM16FrQTO27UAJduW1W82vIOHaveDFrWfUQO1kFFfmE4896

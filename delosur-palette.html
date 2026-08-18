@@ -1,0 +1,308 @@
+<title>Paleta DELOSUR</title>
+<style>
+:root{
+  --bg:#F4F6F9;
+  --surface:#FFFFFF;
+  --ink:#021C59;
+  --ink-soft:#3C4A6E;
+  --muted:#7C89A8;
+  --line:#DCE3EE;
+  --accent:#E1233A;
+  --mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, monospace;
+  --sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1226;
+    --surface:#11193A;
+    --ink:#EAF0FF;
+    --ink-soft:#B9C4E0;
+    --muted:#7C89A8;
+    --line:#243158;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1226;
+  --surface:#11193A;
+  --ink:#EAF0FF;
+  --ink-soft:#B9C4E0;
+  --muted:#7C89A8;
+  --line:#243158;
+}
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  margin:0;
+  padding:56px 24px 80px;
+}
+.wrap{max-width:960px;margin:0 auto;}
+header{margin-bottom:48px;}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0 0 14px;
+  font-weight:600;
+}
+h1{
+  font-size:clamp(28px,4.5vw,42px);
+  margin:0 0 10px;
+  letter-spacing:-0.01em;
+  text-wrap:balance;
+  font-weight:800;
+}
+.sub{
+  color:var(--ink-soft);
+  font-size:16px;
+  max-width:60ch;
+  line-height:1.55;
+  margin:0;
+}
+.logo-strip{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:20px 24px;
+  margin:28px 0 0;
+}
+.logo-strip img{height:40px;width:auto;display:block;}
+.logo-strip span{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--muted);
+}
+.section-title{
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 18px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--line);
+}
+.group{margin-bottom:44px;}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:16px;
+}
+.swatch{
+  border:1px solid var(--line);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--surface);
+}
+.chip{
+  height:96px;
+  width:100%;
+  position:relative;
+}
+.chip .role{
+  position:absolute;
+  bottom:8px;
+  left:12px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  padding:3px 8px;
+  border-radius:999px;
+  background:rgba(0,0,0,.28);
+  color:#fff;
+  backdrop-filter:blur(2px);
+}
+.meta{padding:12px 14px 14px;}
+.name{
+  font-weight:700;
+  font-size:14.5px;
+  margin:0 0 6px;
+}
+.codes{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  font-family:var(--mono);
+  font-size:12.5px;
+  color:var(--ink-soft);
+}
+.codes .hex{color:var(--ink);font-weight:600;}
+.usage{
+  margin:8px 0 0;
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.4;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-family:var(--mono);
+  font-size:13px;
+}
+th,td{
+  text-align:left;
+  padding:10px 12px;
+  border-bottom:1px solid var(--line);
+}
+th{
+  font-family:var(--sans);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--muted);
+  font-weight:700;
+}
+td.hexcell{display:flex;align-items:center;gap:10px;}
+.dot{width:14px;height:14px;border-radius:4px;flex:none;border:1px solid rgba(0,0,0,.1);}
+.scroll{overflow-x:auto;}
+footer{
+  margin-top:56px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+  font-size:12px;
+  color:var(--muted);
+  font-family:var(--mono);
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Identidad de marca · DELOSUR</p>
+    <h1>Paleta de colores extraída del logo</h1>
+    <p class="sub">Valores muestreados directamente de los píxeles de LOGO_DELOSUR.png. Incluye los colores dominantes de marca y las variantes de opacidad y mezcla presentes en los bordes y degradados de la gota.</p>
+    <div class="logo-strip">
+      <img src="LOGO_DELOSUR.png" alt="Logo DELOSUR" onerror="this.style.display='none'">
+      <span>LOGO_DELOSUR.png · 609×105</span>
+    </div>
+  </header>
+
+  <section class="group">
+    <p class="section-title">Colores principales</p>
+    <div class="grid">
+      <div class="swatch">
+        <div class="chip" style="background:#021C59;"><span class="role">Base</span></div>
+        <div class="meta">
+          <p class="name">Azul Marino</p>
+          <div class="codes">
+            <span class="hex">#021C59</span>
+            <span>rgb(2, 28, 89)</span>
+          </div>
+          <p class="usage">Color dominante · texto "DELOSUR" y contorno de la gota</p>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#E1233A;"><span class="role">Acento</span></div>
+        <div class="meta">
+          <p class="name">Rojo Correa</p>
+          <div class="codes">
+            <span class="hex">#E1233A</span>
+            <span>rgb(225, 35, 58)</span>
+          </div>
+          <p class="usage">Trazo curvo que atraviesa el isotipo</p>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#0086C8;"><span class="role">Secundario</span></div>
+        <div class="meta">
+          <p class="name">Azul Gota</p>
+          <div class="codes">
+            <span class="hex">#0086C8</span>
+            <span>rgb(0, 134, 200)</span>
+          </div>
+          <p class="usage">Relleno medio de la gota de agua</p>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#022C84;"><span class="role">Sombra</span></div>
+        <div class="meta">
+          <p class="name">Azul Profundo</p>
+          <div class="codes">
+            <span class="hex">#022C84</span>
+            <span>rgb(2, 44, 132)</span>
+          </div>
+          <p class="usage">Sombra interior de la gota, transición al marino</p>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#D5ECF8;border:1px solid #DCE3EE;"><span class="role" style="background:rgba(2,28,89,.55);">Brillo</span></div>
+        <div class="meta">
+          <p class="name">Celeste Reflejo</p>
+          <div class="codes">
+            <span class="hex">#D5ECF8</span>
+            <span>rgb(213, 236, 248)</span>
+          </div>
+          <p class="usage">Highlight superior de la gota</p>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#FFFFFF;border:1px solid #DCE3EE;"><span class="role" style="background:rgba(2,28,89,.55);">Base</span></div>
+        <div class="meta">
+          <p class="name">Blanco</p>
+          <div class="codes">
+            <span class="hex">#FFFFFF</span>
+            <span>rgb(255, 255, 255)</span>
+          </div>
+          <p class="usage">Fondo / negativo del logotipo</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="group">
+    <p class="section-title">Colores de mezcla y borde (antialiasing)</p>
+    <div class="grid">
+      <div class="swatch">
+        <div class="chip" style="background:#891F4C;"><span class="role">Mezcla</span></div>
+        <div class="meta">
+          <p class="name">Vino</p>
+          <div class="codes"><span class="hex">#891F4C</span><span>rgb(137, 31, 76)</span></div>
+          <p class="usage">Intersección rojo × marino en la curva</p>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#B72145;"><span class="role">Mezcla</span></div>
+        <div class="meta">
+          <p class="name">Carmín</p>
+          <div class="codes"><span class="hex">#B72145</span><span>rgb(183, 33, 69)</span></div>
+          <p class="usage">Borde suavizado del trazo rojo</p>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#5F1D52;"><span class="role">Mezcla</span></div>
+        <div class="meta">
+          <p class="name">Ciruela</p>
+          <div class="codes"><span class="hex">#5F1D52</span><span>rgb(95, 29, 82)</span></div>
+          <p class="usage">Cruce rojo/marino más oscuro</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="group">
+    <p class="section-title">Tabla de referencia rápida</p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>Muestra</th><th>Nombre</th><th>HEX</th><th>RGB</th><th>Uso</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="hexcell"><span class="dot" style="background:#021C59"></span></td><td>Azul Marino</td><td>#021C59</td><td>2, 28, 89</td><td>Tipografía, contorno</td></tr>
+          <tr><td class="hexcell"><span class="dot" style="background:#E1233A"></span></td><td>Rojo Correa</td><td>#E1233A</td><td>225, 35, 58</td><td>Trazo curvo</td></tr>
+          <tr><td class="hexcell"><span class="dot" style="background:#0086C8"></span></td><td>Azul Gota</td><td>#0086C8</td><td>0, 134, 200</td><td>Relleno de la gota</td></tr>
+          <tr><td class="hexcell"><span class="dot" style="background:#022C84"></span></td><td>Azul Profundo</td><td>#022C84</td><td>2, 44, 132</td><td>Sombra de la gota</td></tr>
+          <tr><td class="hexcell"><span class="dot" style="background:#D5ECF8;border:1px solid #ccc"></span></td><td>Celeste Reflejo</td><td>#D5ECF8</td><td>213, 236, 248</td><td>Brillo superior</td></tr>
+          <tr><td class="hexcell"><span class="dot" style="background:#FFFFFF;border:1px solid #ccc"></span></td><td>Blanco</td><td>#FFFFFF</td><td>255, 255, 255</td><td>Fondo</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>extraído por muestreo de píxeles · LOGO_DELOSUR.png</footer>
+</div>

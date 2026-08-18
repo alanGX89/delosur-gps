@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: delosur-gps-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    volumes:
+      - delosur_gps_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: delosur-gps-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    environment:
+      PGHOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - delosur_gps_uploads:/app/uploads
+
+  frontend:
+    build: ./frontend
+    container_name: delosur-gps-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+volumes:
+  delosur_gps_pgdata:
+  delosur_gps_uploads:
