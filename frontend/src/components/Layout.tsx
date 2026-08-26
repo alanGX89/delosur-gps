@@ -5,6 +5,13 @@ import defaultLogo from "../assets/LOGO_DELOSUR.png";
 import { useAuth } from "../context/AuthContext";
 
 const COLLAPSE_KEY = "delosur_sidebar_collapsed";
+const THEME_KEY = "delosur_theme";
+
+function getInitialTheme(): "light" | "dark" {
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored === "light" || stored === "dark") return stored;
+  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
 
 function MapIcon() {
   return (
@@ -59,6 +66,33 @@ function CollapseIcon({ collapsed }: { collapsed: boolean }) {
   );
 }
 
+function SunIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="3.6" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M10 2.5v2M10 15.5v2M17.5 10h-2M4.5 10h-2M15.3 4.7l-1.4 1.4M6.1 13.9l-1.4 1.4M15.3 15.3l-1.4-1.4M6.1 6.1 4.7 4.7"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M16.5 12.5A7 7 0 0 1 7.5 3.5a7 7 0 1 0 9 9Z"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 interface NavItem {
   to: string;
   label: string;
@@ -90,10 +124,16 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(
     () => (localStorage.getItem(COLLAPSE_KEY) ?? "1") === "1"
   );
+  const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
 
   useEffect(() => {
     localStorage.setItem(COLLAPSE_KEY, collapsed ? "1" : "0");
   }, [collapsed]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem(THEME_KEY, theme);
+  }, [theme]);
 
   const navItems = NAV_ITEMS.filter((item) => !item.adminOnly || user?.role === "admin");
 
@@ -106,9 +146,19 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="app-layout">
       <header className="mobile-topbar">
         <img src={user?.logoPath || defaultLogo} alt="Logo" className="mobile-logo" />
-        <button className="mobile-logout-btn" onClick={logout} aria-label="Cerrar sesión">
-          <LogoutIcon />
-        </button>
+        <div className="mobile-topbar-actions">
+          <button
+            className="mobile-logout-btn"
+            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+            aria-label="Cambiar tema"
+            title="Cambiar tema"
+          >
+            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+          </button>
+          <button className="mobile-logout-btn" onClick={logout} aria-label="Cerrar sesión">
+            <LogoutIcon />
+          </button>
+        </div>
       </header>
 
       <aside className={collapsed ? "app-sidebar collapsed" : "app-sidebar"}>
@@ -151,6 +201,14 @@ export default function Layout({ children }: { children: ReactNode }) {
               </div>
             )}
           </div>
+          <button
+            className="sidebar-logout"
+            onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+            title={collapsed ? "Cambiar tema" : undefined}
+          >
+            {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+            {!collapsed && (theme === "dark" ? "Modo claro" : "Modo oscuro")}
+          </button>
           <button className="sidebar-logout" onClick={logout} title={collapsed ? "Cerrar sesión" : undefined}>
             <LogoutIcon />
             {!collapsed && "Cerrar sesión"}
@@ -217,6 +275,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           z-index: 2000;
         }
         .mobile-logo { height: 22px; }
+        .mobile-topbar-actions { display: flex; gap: 8px; }
         .mobile-logout-btn {
           width: 32px;
           height: 32px;

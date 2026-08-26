@@ -11,6 +11,9 @@ interface UserRow {
   username: string;
   role: "admin" | "user";
   full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
   logo_path: string | null;
   color_primary: string;
   color_accent: string;
@@ -22,7 +25,12 @@ interface UserRow {
   created_at: string;
 }
 
-function toPublicUser(row: UserRow, deviceIds: number[], createdByUsername: string | null) {
+function toPublicUser(
+  row: UserRow,
+  deviceIds: number[],
+  createdByUsername: string | null,
+  deviceNames: string[] = []
+) {
   const validFrom = row.valid_from ? new Date(row.valid_from) : null;
   const validUntil = row.valid_until ? new Date(row.valid_until) : null;
 
@@ -31,6 +39,9 @@ function toPublicUser(row: UserRow, deviceIds: number[], createdByUsername: stri
     username: row.username,
     role: row.role,
     fullName: row.full_name,
+    email: row.email,
+    phone: row.phone,
+    notes: row.notes,
     logoPath: row.logo_path,
     colorPrimary: row.color_primary,
     colorAccent: row.color_accent,
@@ -43,6 +54,7 @@ function toPublicUser(row: UserRow, deviceIds: number[], createdByUsername: stri
     createdByUsername,
     createdAt: row.created_at,
     deviceIds,
+    deviceNames,
   };
 }
 
@@ -52,6 +64,45 @@ async function getAssignedDeviceIds(userId: number): Promise<number[]> {
     [userId]
   );
   return rows.map((r) => r.device_id);
+}
+
+async function getAssignedDeviceNames(deviceIds: number[]): Promise<string[]> {
+  if (deviceIds.length === 0) return [];
+  const { rows } = await pool.query<{ name: string }>(
+    "SELECT name FROM devices WHERE id = ANY($1) ORDER BY name",
+    [deviceIds]
+  );
+  return rows.map((r) => r.name);
+}
+
+const PROFILE_FIELD_LABELS: Record<string, string> = {
+  full_name: "Nombre completo",
+  email: "Email",
+  phone: "Teléfono",
+  notes: "Notas",
+  role: "Rol",
+  color_primary: "Color primario",
+  color_accent: "Color de acento",
+  color_secondary: "Color secundario",
+  valid_from: "Vigente desde",
+  valid_until: "Vigente hasta",
+};
+
+function diffUserChanges(
+  before: UserRow,
+  after: UserRow,
+  devicesChanged: boolean
+): string {
+  const parts: string[] = [];
+  for (const [field, label] of Object.entries(PROFILE_FIELD_LABELS)) {
+    const b = (before as unknown as Record<string, unknown>)[field] ?? null;
+    const a = (after as unknown as Record<string, unknown>)[field] ?? null;
+    if (String(b) !== String(a)) {
+      parts.push(`${label}: "${b ?? "—"}" → "${a ?? "—"}"`);
+    }
+  }
+  if (devicesChanged) parts.push("Flota asignada modificada");
+  return parts.length ? parts.join(" · ") : "Sin cambios detectados";
 }
 
 async function logAudit(
@@ -76,7 +127,11 @@ adminRouter.get("/users", async (_req, res) => {
      ORDER BY u.created_at DESC`
   );
   const users = await Promise.all(
-    rows.map(async (row) => toPublicUser(row, await getAssignedDeviceIds(row.id), row.creator_username))
+    rows.map(async (row) => {
+      const deviceIds = await getAssignedDeviceIds(row.id);
+      const deviceNames = await getAssignedDeviceNames(deviceIds);
+      return toPublicUser(row, deviceIds, row.creator_username, deviceNames);
+    })
   );
   res.json(users);
 });
@@ -86,6 +141,9 @@ adminRouter.post("/users", async (req, res) => {
     username,
     password,
     fullName,
+    email = null,
+    phone = null,
+    notes = null,
     role = "user",
     colorPrimary = "#021C59",
     colorAccent = "#E1233A",
@@ -105,14 +163,17 @@ adminRouter.post("/users", async (req, res) => {
   try {
     await client.query("BEGIN");
     const { rows } = await client.query<UserRow>(
-      `INSERT INTO users (username, password_hash, role, full_name, color_primary, color_accent, color_secondary, created_by, valid_from, valid_until)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO users (username, password_hash, role, full_name, email, phone, notes, color_primary, color_accent, color_secondary, created_by, valid_from, valid_until)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING *`,
       [
         username,
         passwordHash,
         role,
         fullName || null,
+        email || null,
+        phone || null,
+        notes || null,
         colorPrimary,
         colorAccent,
         colorSecondary,
@@ -144,7 +205,8 @@ adminRouter.post("/users", async (req, res) => {
     );
 
     await client.query("COMMIT");
-    res.status(201).json(toPublicUser(user, deviceIds, req.auth?.username ?? null));
+    const deviceNames = await getAssignedDeviceNames(deviceIds as number[]);
+    res.status(201).json(toPublicUser(user, deviceIds, req.auth?.username ?? null, deviceNames));
   } catch (err) {
     await client.query("ROLLBACK");
     if (err && typeof err === "object" && "code" in err && err.code === "23505") {
@@ -161,6 +223,9 @@ adminRouter.put("/users/:id", async (req, res) => {
   const userId = Number(req.params.id);
   const {
     fullName,
+    email,
+    phone,
+    notes,
     role,
     colorPrimary,
     colorAccent,
@@ -176,23 +241,38 @@ adminRouter.put("/users/:id", async (req, res) => {
   try {
     await client.query("BEGIN");
 
+    const { rows: beforeRows } = await client.query<UserRow>("SELECT * FROM users WHERE id = $1", [
+      userId,
+    ]);
+    if (beforeRows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+    const before = beforeRows[0];
+
     const passwordHash = password ? await bcrypt.hash(password, 10) : null;
 
     const { rows } = await client.query<UserRow>(
       `UPDATE users SET
          full_name = COALESCE($2, full_name),
-         role = COALESCE($3, role),
-         color_primary = COALESCE($4, color_primary),
-         color_accent = COALESCE($5, color_accent),
-         color_secondary = COALESCE($6, color_secondary),
-         password_hash = COALESCE($7, password_hash),
-         valid_from = CASE WHEN $8 THEN NULL ELSE COALESCE($9, valid_from) END,
-         valid_until = CASE WHEN $8 THEN NULL ELSE COALESCE($10, valid_until) END
+         email = COALESCE($3, email),
+         phone = COALESCE($4, phone),
+         notes = COALESCE($5, notes),
+         role = COALESCE($6, role),
+         color_primary = COALESCE($7, color_primary),
+         color_accent = COALESCE($8, color_accent),
+         color_secondary = COALESCE($9, color_secondary),
+         password_hash = COALESCE($10, password_hash),
+         valid_from = CASE WHEN $11 THEN NULL ELSE COALESCE($12, valid_from) END,
+         valid_until = CASE WHEN $11 THEN NULL ELSE COALESCE($13, valid_until) END
        WHERE id = $1
        RETURNING *`,
       [
         userId,
         fullName ?? null,
+        email ?? null,
+        phone ?? null,
+        notes ?? null,
         role ?? null,
         colorPrimary ?? null,
         colorAccent ?? null,
@@ -204,12 +284,13 @@ adminRouter.put("/users/:id", async (req, res) => {
       ]
     );
 
-    if (rows.length === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
+    const after = rows[0];
 
+    let devicesChanged = false;
     if (Array.isArray(deviceIds)) {
+      const currentIds = (await getAssignedDeviceIds(userId)).slice().sort();
+      const nextIds = [...(deviceIds as number[])].sort();
+      devicesChanged = JSON.stringify(currentIds) !== JSON.stringify(nextIds);
       await client.query("DELETE FROM user_devices WHERE user_id = $1", [userId]);
       for (const deviceId of deviceIds as number[]) {
         await client.query("INSERT INTO user_devices (user_id, device_id) VALUES ($1, $2)", [
@@ -219,15 +300,19 @@ adminRouter.put("/users/:id", async (req, res) => {
       }
     }
 
-    await logAudit(userId, req.auth?.sub, req.auth?.username, "updated");
+    const details = diffUserChanges(before, after, devicesChanged);
+    const finalDetails = password ? `Contraseña actualizada · ${details}` : details;
+    await logAudit(userId, req.auth?.sub, req.auth?.username, "updated", finalDetails);
 
     await client.query("COMMIT");
     const creator = await pool.query<{ username: string | null }>(
       "SELECT username FROM users WHERE id = $1",
       [rows[0].created_by]
     );
+    const finalDeviceIds = await getAssignedDeviceIds(userId);
+    const deviceNames = await getAssignedDeviceNames(finalDeviceIds);
     res.json(
-      toPublicUser(rows[0], await getAssignedDeviceIds(userId), creator.rows[0]?.username ?? null)
+      toPublicUser(rows[0], finalDeviceIds, creator.rows[0]?.username ?? null, deviceNames)
     );
   } catch (err) {
     await client.query("ROLLBACK");

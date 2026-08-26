@@ -10,6 +10,7 @@ const ACTION_LABELS: Record<string, string> = {
   suspended: "Suspendido",
   unsuspended: "Reanudado",
   logo_updated: "Logo actualizado",
+  login: "Inicio de sesión",
 };
 
 function formatDateTime(iso: string): string {

@@ -26,6 +26,9 @@ const emptyForm: UserPayload = {
   username: "",
   password: "",
   fullName: "",
+  email: "",
+  phone: "",
+  notes: "",
   role: "user",
   deviceIds: [],
 };
@@ -84,6 +87,7 @@ const ACTION_LABELS: Record<string, string> = {
   suspended: "Suspendido",
   unsuspended: "Reanudado",
   logo_updated: "Logo actualizado",
+  login: "Inicio de sesión",
 };
 
 function toLocalInputValue(iso: string | null): string {
@@ -160,6 +164,9 @@ export default function AdminUsers() {
       username: user.username,
       password: "",
       fullName: user.fullName ?? "",
+      email: user.email ?? "",
+      phone: user.phone ?? "",
+      notes: user.notes ?? "",
       role: user.role,
       deviceIds: user.deviceIds,
     });
@@ -366,9 +373,24 @@ export default function AdminUsers() {
                         </span>
                       </td>
                       <td className="fleet-cell">
-                        {u.role === "admin"
-                          ? "Toda la flota"
-                          : `${u.deviceIds.length} vehículo${u.deviceIds.length === 1 ? "" : "s"}`}
+                        {u.role === "admin" ? (
+                          "Toda la flota"
+                        ) : u.deviceNames.length === 0 ? (
+                          "Sin vehículos"
+                        ) : (
+                          <div className="fleet-cell-list" title={u.deviceNames.join(", ")}>
+                            {u.deviceNames.slice(0, 2).map((name) => (
+                              <span key={name} className="fleet-cell-chip">
+                                {name}
+                              </span>
+                            ))}
+                            {u.deviceNames.length > 2 && (
+                              <span className="fleet-cell-more">
+                                +{u.deviceNames.length - 2} más
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </td>
                       <td>
                         <span className={`badge ${meta.className}`}>{meta.label}</span>
@@ -549,6 +571,12 @@ export default function AdminUsers() {
                       autoFocus
                       required
                     />
+                    {editingId && (
+                      <small className="field-hint">
+                        El nombre de usuario no se puede cambiar una vez creado, para mantener su
+                        historial de actividad vinculado correctamente.
+                      </small>
+                    )}
                   </label>
 
                   <label>
@@ -577,6 +605,36 @@ export default function AdminUsers() {
                       value={form.fullName}
                       onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
                       placeholder="ej. Transportes del Sur S.A."
+                    />
+                  </label>
+
+                  <div className="field-row">
+                    <label>
+                      <span>Email <em>(opcional)</em></span>
+                      <input
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                        placeholder="contacto@empresa.com"
+                      />
+                    </label>
+                    <label>
+                      <span>Teléfono <em>(opcional)</em></span>
+                      <input
+                        value={form.phone}
+                        onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                        placeholder="+591 7xxxxxxx"
+                      />
+                    </label>
+                  </div>
+
+                  <label>
+                    <span>Notas internas <em>(opcional)</em></span>
+                    <textarea
+                      value={form.notes}
+                      onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+                      placeholder="Contexto adicional: cargo, empresa, motivo del acceso, etc."
+                      rows={3}
                     />
                   </label>
                 </div>
@@ -903,6 +961,18 @@ export default function AdminUsers() {
         .row-fullname { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
         .row-schedule { font-size: 10.5px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
         .fleet-cell { font-variant-numeric: tabular-nums; color: var(--ink-soft); }
+        .fleet-cell-list { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+        .fleet-cell-chip {
+          background: var(--surface-2);
+          border: 1px solid var(--line);
+          border-radius: 999px;
+          padding: 2px 8px;
+          font-size: 11px;
+          font-weight: 600;
+          color: var(--ink-soft);
+          white-space: nowrap;
+        }
+        .fleet-cell-more { font-size: 11px; color: var(--muted); font-weight: 600; white-space: nowrap; }
 
         .badge {
           display: inline-flex;
@@ -1087,6 +1157,25 @@ export default function AdminUsers() {
           color: var(--muted);
         }
         .drawer-form label em { font-style: normal; font-weight: 400; color: var(--muted); }
+        .field-hint { font-size: 11px; font-weight: 400; color: var(--muted); line-height: 1.4; }
+        .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .drawer-form textarea {
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          padding: 9px 10px;
+          font-size: 13px;
+          font-family: inherit;
+          background: var(--bg);
+          color: var(--ink);
+          resize: vertical;
+        }
+        .drawer-form textarea:focus {
+          outline: 2px solid var(--blue);
+          outline-offset: 1px;
+        }
+        @media (max-width: 480px) {
+          .field-row { grid-template-columns: 1fr; }
+        }
 
         .password-field { display: flex; gap: 6px; }
         .password-field input { flex: 1; }

@@ -53,6 +53,12 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS created_by INTEGER REFERENCES users(i
 ALTER TABLE users ADD COLUMN IF NOT EXISTS valid_from TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS valid_until TIMESTAMPTZ;
 
+-- Información adicional de perfil (más completa para administradores y
+-- clientes con flota asignada): datos de contacto y notas internas.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notes TEXT;
+
 CREATE TABLE IF NOT EXISTS user_devices (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   device_id INTEGER NOT NULL,

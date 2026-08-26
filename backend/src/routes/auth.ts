@@ -50,6 +50,12 @@ authRouter.post("/login", async (req, res) => {
     { expiresIn: "12h" }
   );
 
+  await pool.query(
+    `INSERT INTO user_audit_log (user_id, actor_id, actor_username, action, details)
+     VALUES ($1, $1, $2, 'login', $3)`,
+    [user.id, user.username, `IP: ${req.ip ?? "desconocida"}`]
+  );
+
   res.json({
     token,
     user: {

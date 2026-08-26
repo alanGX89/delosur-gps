@@ -48,6 +48,9 @@ export type UserStatus = "active" | "blocked" | "suspended";
 export type EffectiveStatus = UserStatus | "scheduled" | "expired";
 
 export interface AdminUser extends SessionUser {
+  email: string | null;
+  phone: string | null;
+  notes: string | null;
   status: UserStatus;
   effectiveStatus: EffectiveStatus;
   validFrom: string | null;
@@ -56,12 +59,16 @@ export interface AdminUser extends SessionUser {
   createdByUsername: string | null;
   createdAt: string;
   deviceIds: number[];
+  deviceNames: string[];
 }
 
 export interface UserPayload {
   username: string;
   password?: string;
   fullName?: string;
+  email?: string;
+  phone?: string;
+  notes?: string;
   role?: "admin" | "user";
   colorPrimary?: string;
   colorAccent?: string;
