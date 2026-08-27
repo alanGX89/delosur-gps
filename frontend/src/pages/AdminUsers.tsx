@@ -143,11 +143,23 @@ export default function AdminUsers() {
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Contraseñas en texto plano vistas en esta sesión del navegador (recién
+  // Contraseñas en texto plano vistas en esta pestaña del navegador (recién
   // creadas o restablecidas), solo para armar el texto de invitación. Nunca
-  // se persisten ni se envían de vuelta al servidor.
-  const [knownPasswords, setKnownPasswords] = useState<Record<number, string>>({});
+  // se envían de vuelta al servidor; se guardan en sessionStorage para
+  // sobrevivir a un F5, pero se borran solas al cerrar la pestaña/navegador.
+  const KNOWN_PASSWORDS_KEY = "delosur_known_passwords";
+  const [knownPasswords, setKnownPasswords] = useState<Record<number, string>>(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem(KNOWN_PASSWORDS_KEY) ?? "{}");
+    } catch {
+      return {};
+    }
+  });
   const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  useEffect(() => {
+    sessionStorage.setItem(KNOWN_PASSWORDS_KEY, JSON.stringify(knownPasswords));
+  }, [knownPasswords]);
 
   async function loadAll() {
     const [u, d] = await Promise.all([getUsers(), getDevices()]);
@@ -297,6 +309,11 @@ export default function AdminUsers() {
     setDeleting(true);
     try {
       await deleteUser(deleteTarget.id);
+      setKnownPasswords((p) => {
+        const next = { ...p };
+        delete next[deleteTarget.id];
+        return next;
+      });
       setDeleteTarget(null);
       await loadAll();
     } catch (err) {
