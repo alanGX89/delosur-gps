@@ -69,6 +69,23 @@ function ClockIcon() {
   );
 }
 
+function InviteIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+      <rect x="3" y="5" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M3.5 6 10 11l6.5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+      <path d="M4 10.5 8 14.5 16 5.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 const STEPS = ["Cuenta", "Rol y flota", "Vigencia", "Marca"] as const;
 
 const STATUS_META: Record<EffectiveStatus, { label: string; className: string }> = {
@@ -125,6 +142,12 @@ export default function AdminUsers() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Contraseñas en texto plano vistas en esta sesión del navegador (recién
+  // creadas o restablecidas), solo para armar el texto de invitación. Nunca
+  // se persisten ni se envían de vuelta al servidor.
+  const [knownPasswords, setKnownPasswords] = useState<Record<number, string>>({});
+  const [copiedId, setCopiedId] = useState<number | null>(null);
 
   async function loadAll() {
     const [u, d] = await Promise.all([getUsers(), getDevices()]);
@@ -256,6 +279,10 @@ export default function AdminUsers() {
         await uploadUserLogo(userId, logoFile);
       }
 
+      if (userId && form.password) {
+        setKnownPasswords((p) => ({ ...p, [userId as number]: form.password as string }));
+      }
+
       setDrawerOpen(false);
       await loadAll();
     } catch (err) {
@@ -298,6 +325,20 @@ export default function AdminUsers() {
       setError(err instanceof Error ? err.message : "No se pudo cargar el historial");
     } finally {
       setHistoryLoading(false);
+    }
+  }
+
+  async function copyInvite(u: AdminUser) {
+    const password = knownPasswords[u.id];
+    if (!password) return;
+    const link = `${window.location.origin}/login`;
+    const text = `Hola${u.fullName ? " " + u.fullName : ""}, te damos la bienvenida al sistema de rastreo GPS de DELOSUR.\n\nEnlace: ${link}\nUsuario: ${u.username}\nContraseña: ${password}\n\nCualquier duda, quedamos atentos.`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(u.id);
+      setTimeout(() => setCopiedId((id) => (id === u.id ? null : id)), 2000);
+    } catch {
+      setError("No se pudo copiar al portapapeles");
     }
   }
 
@@ -404,6 +445,15 @@ export default function AdminUsers() {
                       </td>
                       <td className="row-fullname">{u.createdByUsername ?? "—"}</td>
                       <td className="row-actions">
+                        {knownPasswords[u.id] && (
+                          <button
+                            className={copiedId === u.id ? "icon-btn success" : "icon-btn"}
+                            title="Copiar invitación (enlace, usuario y contraseña)"
+                            onClick={() => copyInvite(u)}
+                          >
+                            {copiedId === u.id ? <CheckIcon /> : <InviteIcon />}
+                          </button>
+                        )}
                         <button className="icon-btn" title="Historial" onClick={() => openHistory(u)}>
                           <ClockIcon />
                         </button>
@@ -1008,6 +1058,7 @@ export default function AdminUsers() {
         }
         .icon-btn:hover { background: var(--surface-2); color: var(--ink); }
         .icon-btn.danger:hover { background: #FBEAEC; color: var(--danger); border-color: var(--danger); }
+        .icon-btn.success { background: #E4F5EA; color: #1F9D55; border-color: #B7DCC0; }
         .text-btn {
           border: 1px solid var(--line);
           background: var(--surface);
