@@ -143,6 +143,9 @@ export default function AdminUsers() {
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  const [fleetViewUser, setFleetViewUser] = useState<AdminUser | null>(null);
+  const [removingDeviceId, setRemovingDeviceId] = useState<number | null>(null);
+
   // Contraseñas en texto plano vistas en esta pestaña del navegador (recién
   // creadas o restablecidas), solo para armar el texto de invitación. Nunca
   // se envían de vuelta al servidor; se guardan en sessionStorage para
@@ -244,6 +247,21 @@ export default function AdminUsers() {
         .sort((a, b) => a.name.localeCompare(b.name)),
     [devices, fleetQuery]
   );
+
+  // Mapa id -> placa, usado para emparejar correctamente cada vehículo
+  // asignado con su nombre (el backend puede devolver deviceIds y
+  // deviceNames en distinto orden, así que no se deben emparejar por índice).
+  const deviceNameById = useMemo(() => {
+    const map = new Map<number, string>();
+    devices.forEach((d) => map.set(d.id, d.name));
+    return map;
+  }, [devices]);
+
+  function fleetOf(user: AdminUser): { id: number; name: string }[] {
+    return user.deviceIds
+      .map((id) => ({ id, name: deviceNameById.get(id) ?? `Vehículo #${id}` }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
 
   const selectedCount = form.deviceIds?.length ?? 0;
 
@@ -359,6 +377,21 @@ export default function AdminUsers() {
     }
   }
 
+  async function removeDeviceFromUser(user: AdminUser, deviceId: number) {
+    setRemovingDeviceId(deviceId);
+    setError(null);
+    try {
+      const nextDeviceIds = user.deviceIds.filter((id) => id !== deviceId);
+      const updated = await updateUser(user.id, { deviceIds: nextDeviceIds });
+      setFleetViewUser(updated);
+      await loadAll();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo quitar el vehículo");
+    } finally {
+      setRemovingDeviceId(null);
+    }
+  }
+
   const adminCount = users.filter((u) => u.role === "admin").length;
   const fleetAssignedCount = users.filter((u) => u.role === "user" && u.deviceIds.length > 0)
     .length;
@@ -433,21 +466,30 @@ export default function AdminUsers() {
                       <td className="fleet-cell">
                         {u.role === "admin" ? (
                           "Toda la flota"
-                        ) : u.deviceNames.length === 0 ? (
+                        ) : u.deviceIds.length === 0 ? (
                           "Sin vehículos"
-                        ) : (
-                          <div className="fleet-cell-list" title={u.deviceNames.join(", ")}>
-                            {u.deviceNames.slice(0, 2).map((name) => (
-                              <span key={name} className="fleet-cell-chip">
-                                {name}
+                        ) : u.deviceIds.length < 3 ? (
+                          <button
+                            type="button"
+                            className="fleet-cell-list fleet-cell-list-btn"
+                            onClick={() => setFleetViewUser(u)}
+                            title="Ver y editar vehículos asignados"
+                          >
+                            {fleetOf(u).map((d) => (
+                              <span key={d.id} className="fleet-cell-chip">
+                                {d.name}
                               </span>
                             ))}
-                            {u.deviceNames.length > 2 && (
-                              <span className="fleet-cell-more">
-                                +{u.deviceNames.length - 2} más
-                              </span>
-                            )}
-                          </div>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="fleet-cell-badge"
+                            onClick={() => setFleetViewUser(u)}
+                            title="Ver y editar vehículos asignados"
+                          >
+                            +{u.deviceIds.length}
+                          </button>
                         )}
                       </td>
                       <td>
@@ -579,6 +621,59 @@ export default function AdminUsers() {
               <button className="danger" onClick={confirmDelete} disabled={deleting}>
                 {deleting ? "Eliminando..." : "Sí, eliminar"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {fleetViewUser && (
+        <div className="modal-overlay" onClick={() => setFleetViewUser(null)}>
+          <div className="fleet-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="fleet-modal-head">
+              <div>
+                <p className="confirm-title">Vehículos asignados</p>
+                <p className="fleet-modal-sub">{fleetViewUser.username}</p>
+              </div>
+              <button
+                className="drawer-close"
+                onClick={() => setFleetViewUser(null)}
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <ul className="fleet-modal-list">
+              {fleetOf(fleetViewUser).map((d) => (
+                <li key={d.id}>
+                  <span>{d.name}</span>
+                  <button
+                    type="button"
+                    className="fleet-modal-remove"
+                    disabled={removingDeviceId === d.id}
+                    onClick={() => removeDeviceFromUser(fleetViewUser, d.id)}
+                    title="Quitar este vehículo"
+                  >
+                    {removingDeviceId === d.id ? "..." : "Quitar"}
+                  </button>
+                </li>
+              ))}
+              {fleetViewUser.deviceIds.length === 0 && (
+                <li className="fleet-modal-empty">Este usuario ya no tiene vehículos asignados.</li>
+              )}
+            </ul>
+
+            <div className="fleet-modal-actions">
+              <button
+                className="secondary"
+                onClick={() => {
+                  setFleetViewUser(null);
+                  startEdit(fleetViewUser);
+                }}
+              >
+                Agregar más vehículos
+              </button>
+              <button onClick={() => setFleetViewUser(null)}>Listo</button>
             </div>
           </div>
         </div>
@@ -1542,6 +1637,105 @@ export default function AdminUsers() {
         .confirm-actions .danger { background: var(--danger); color: #fff; }
         .confirm-actions .danger:hover { background: #b81b30; }
         .confirm-actions button:disabled { opacity: .6; cursor: default; }
+
+        .fleet-cell-list-btn {
+          background: none;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+          align-items: center;
+          text-align: left;
+        }
+        .fleet-cell-badge {
+          background: var(--surface-2);
+          border: 1px solid var(--line);
+          border-radius: 999px;
+          padding: 3px 10px;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: var(--navy);
+          cursor: pointer;
+        }
+        .fleet-cell-badge:hover { background: var(--sky); border-color: var(--blue); }
+
+        .fleet-modal {
+          width: 100%;
+          max-width: 380px;
+          max-height: 80vh;
+          background: var(--surface);
+          border-radius: 12px;
+          padding: 20px;
+          box-shadow: 0 20px 50px rgba(2, 12, 40, 0.35);
+          animation: slide-in .15s ease-out;
+          display: flex;
+          flex-direction: column;
+        }
+        .fleet-modal-head {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+        .fleet-modal-sub { margin: 2px 0 0; font-size: 12px; color: var(--muted); font-weight: 600; }
+        .fleet-modal-list {
+          list-style: none;
+          margin: 0 0 16px;
+          padding: 0;
+          overflow-y: auto;
+          max-height: 40vh;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .fleet-modal-list li {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding: 8px 10px;
+          border: 1px solid var(--line);
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--ink);
+        }
+        .fleet-modal-empty { color: var(--muted); font-weight: 400; justify-content: center; border-style: dashed; }
+        .fleet-modal-remove {
+          border: 1px solid var(--line);
+          background: var(--surface);
+          border-radius: 7px;
+          padding: 4px 10px;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: var(--danger);
+          cursor: pointer;
+          white-space: nowrap;
+        }
+        .fleet-modal-remove:hover:not(:disabled) { background: #FBEAEC; border-color: var(--danger); }
+        .fleet-modal-remove:disabled { opacity: .6; cursor: default; }
+        .fleet-modal-actions { display: flex; gap: 8px; }
+        .fleet-modal-actions button {
+          flex: 1;
+          border: none;
+          border-radius: 8px;
+          padding: 10px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          background: var(--navy);
+          color: #fff;
+        }
+        .fleet-modal-actions button:hover { background: var(--navy-deep); }
+        .fleet-modal-actions button.secondary {
+          background: var(--surface-2);
+          color: var(--ink-soft);
+          border: 1px solid var(--line);
+        }
+        .fleet-modal-actions button.secondary:hover { background: var(--line); }
       `}</style>
     </div>
   );
