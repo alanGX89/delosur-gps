@@ -1,5 +1,10 @@
 # Secretos / credenciales
 pass.md
+pass*.md
+link_api.md
+
+# Música de los videos (archivos grandes)
+*.mp3
 .env
 .env.production
 .env.local
