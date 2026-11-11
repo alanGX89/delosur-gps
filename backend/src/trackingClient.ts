@@ -1,4 +1,5 @@
 import axios from "axios";
+import { fetchTrsDevices } from "./trsClient";
 
 export interface TrackingSensor {
   id: number;
@@ -65,7 +66,7 @@ async function fetchSource(url: string, sourceIndex: number): Promise<TrackingDe
 
 export async function fetchDevices(): Promise<TrackingDevice[]> {
   const urls = getSourceUrls();
-  const results = await Promise.all(urls.map((url, i) => fetchSource(url, i)));
+  const results = await Promise.all([...urls.map((url, i) => fetchSource(url, i)), fetchTrsDevices()]);
   const all = results.flat();
 
   // La plataforma oficial deduplica por nombre de vehículo (la misma unidad
