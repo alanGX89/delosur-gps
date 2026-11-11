@@ -8,6 +8,7 @@ import { startPoller } from "./poller";
 import { adminRouter } from "./routes/admin";
 import { authRouter } from "./routes/auth";
 import { devicesRouter } from "./routes/devices";
+import { overviewRouter } from "./routes/overview";
 
 async function main() {
   await bootstrapDatabase();
@@ -21,6 +22,7 @@ async function main() {
   app.use("/api/auth", authRouter);
   app.use("/api", requireAuth, devicesRouter);
   app.use("/api/admin", requireAuth, requireAdmin, adminRouter);
+  app.use("/api/admin", requireAuth, requireAdmin, overviewRouter);
 
   const port = Number(process.env.PORT || 4000);
   app.listen(port, () => {

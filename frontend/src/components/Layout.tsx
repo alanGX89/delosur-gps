@@ -27,6 +27,17 @@ function MapIcon() {
   );
 }
 
+function PanelIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+      <rect x="3" y="3" width="6" height="7" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="11" y="3" width="6" height="4" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="3" y="12" width="6" height="5" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="11" y="9" width="6" height="8" rx="1.2" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  );
+}
+
 function UsersIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
@@ -103,6 +114,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: "/", label: "Mapa en vivo", icon: <MapIcon />, adminOnly: false },
+  { to: "/panel", label: "Panel general", icon: <PanelIcon />, adminOnly: true },
   {
     to: "/admin",
     label: "Usuarios",

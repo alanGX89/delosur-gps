@@ -90,6 +90,45 @@ export interface AuditLogEntry {
   created_at: string;
 }
 
+export interface OverviewDevice {
+  id: number;
+  name: string;
+  online: string;
+  speed: number;
+  lastReportAt: string | null;
+  source: string;
+  assigned: boolean;
+}
+
+export interface OverviewSource {
+  name: string;
+  ok: boolean;
+  devices: number;
+  checkedAt: string;
+  lastOkAt: string | null;
+  error: string | null;
+}
+
+export interface OverviewClient {
+  id: number;
+  username: string;
+  fullName: string | null;
+  effectiveStatus: EffectiveStatus;
+  validUntil: string | null;
+  deviceCount: number;
+  lastLoginAt: string | null;
+}
+
+export interface AdminOverview {
+  generatedAt: string;
+  timeZone: string;
+  devices: OverviewDevice[];
+  sources: OverviewSource[];
+  clients: OverviewClient[];
+  loginsByDay: { day: string; count: number }[];
+  recentActions: AuditLogEntry[];
+}
+
 const TOKEN_KEY = "delosur_token";
 
 export function getToken(): string | null {
@@ -214,4 +253,8 @@ export function getUserLogs(id: number) {
 
 export function getAuditLog() {
   return request<AuditLogEntry[]>("/api/admin/audit-log");
+}
+
+export function getAdminOverview() {
+  return request<AdminOverview>("/api/admin/overview");
 }

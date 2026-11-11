@@ -1,4 +1,5 @@
 import axios from "axios";
+import { recordSourceHealth } from "./sourceHealth";
 import type { TrackingDevice } from "./trackingClient";
 
 // Fuente TRS Rastreo (trsrastreo.com.bo): API con login propio que devuelve los
@@ -21,7 +22,7 @@ interface TrsVehiculo {
 }
 
 // IDs sintéticos: las fuentes GPSWox usan índice * 1.000.000 + id (0..2.999.999).
-const ID_BASE = 9_000_000;
+export const TRS_ID_BASE = 9_000_000;
 // Sin reporte en este tiempo, el vehículo se muestra "sin conexión".
 const OFFLINE_MS = 60 * 60 * 1000;
 // Por debajo de esta velocidad (km/h) se considera detenido (deriva del GPS).
@@ -89,7 +90,7 @@ function toTrackingDevice(v: TrsVehiculo): TrackingDevice | null {
   const online = stale ? "offline" : speed >= MIN_MOVING_KMH ? "moving" : ignition ? "engine" : "stopped";
 
   return {
-    id: ID_BASE + v.vehiculo.id,
+    id: TRS_ID_BASE + v.vehiculo.id,
     name: v.vehiculo.veh_alias || v.vehiculo.veh_placa,
     online,
     time: formatTime(d.d_timestamp),
@@ -117,9 +118,12 @@ export async function fetchTrsDevices(): Promise<TrackingDevice[]> {
   if (!process.env.TRS_USER || !process.env.TRS_PASSWORD) return [];
   try {
     const vehiculos = await getVehiculos();
-    return vehiculos.map(toTrackingDevice).filter((d): d is TrackingDevice => d !== null);
+    const devices = vehiculos.map(toTrackingDevice).filter((d): d is TrackingDevice => d !== null);
+    recordSourceHealth("TRS Rastreo", devices.length, null);
+    return devices;
   } catch (err) {
     console.error("Error consultando fuente de tracking TRS:", (err as Error).message);
+    recordSourceHealth("TRS Rastreo", 0, (err as Error).message);
     return [];
   }
 }

@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 import { useAuth } from "./context/AuthContext";
 import ActivityLog from "./pages/ActivityLog";
+import AdminOverview from "./pages/AdminOverview";
 import AdminUsers from "./pages/AdminUsers";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
@@ -54,6 +55,14 @@ export default function App() {
           <PrivateRoute>
             <Dashboard />
           </PrivateRoute>
+        }
+      />
+      <Route
+        path="/panel"
+        element={
+          <AdminRoute>
+            <AdminOverview />
+          </AdminRoute>
         }
       />
       <Route
